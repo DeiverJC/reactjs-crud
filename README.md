@@ -3,4 +3,4 @@
 Learning ReactJS 2021
 
 ## Screenshop
-![Task list]("./public/images/sc-tasks.png")
+![Task list](./public/images/sc-tasks.png)
