@@ -5,6 +5,8 @@ import shortid from 'shortid'
 function App() {
   const [task, setTask] = useState("")
   const [tasks, setTasks] = useState([])
+  const [editMode, setEditMode] = useState(false)
+  const [id, setId] = useState("")
 
   const addTask = (e) => {
     e.preventDefault()
@@ -13,14 +15,31 @@ function App() {
     }
     const newTask = {
       id: shortid.generate(),
-      task
+      name: task
     }
     setTasks([...tasks, newTask])
     setTask("")
   }
 
-  const deleteTask = (id) => {
+  const deleteTask = id => {
     setTasks(tasks.filter(task => task.id !== id ))
+  }
+
+  const editTask = myTask => {
+    setEditMode(true)
+    setId(myTask.id)
+    setTask(myTask.name)
+  }
+
+  const updateTask = (e) => {
+    e.preventDefault()
+    if(isEmpty(task)) {
+      return
+    }
+    setTasks(tasks.map(item => item.id === id ? {id, name: task} : item))
+    setTask("")
+    setId("")
+    setEditMode(false)
   }
 
   return (
@@ -35,18 +54,19 @@ function App() {
           ) : (
             <ul className="list-group">
             {
-              tasks.map(({id, task}) => (
-                <li className="list-group-item" key={id}>
-                  <span className="lead">{task}</span>
+              tasks.map(task => (
+                <li className="list-group-item" key={task.id}>
+                  <span className="lead">{task.name}</span>
                   <div className="float-right">
                     <button 
                       className="btn btn-warning btn-sm mr-2"
+                      onClick={() => { editTask(task) }}
                     >
                       Edit
                     </button>
                     <button 
                       className="btn btn-danger btn-sm"
-                      onClick={() => { deleteTask(id) }}
+                      onClick={() => { deleteTask(task.id) }}
                     >
                       Delete
                     </button>
@@ -58,8 +78,10 @@ function App() {
           )}
         </div>
         <div className="col-4">
-          <h4 className="text-center">Create task</h4>
-          <form onSubmit={addTask}>
+          <h4 className="text-center">
+            {editMode ? "Edit task" : "Create task"}
+          </h4>
+          <form onSubmit={editMode ? updateTask : addTask}>
             <input 
               type="text" 
               className="form-control mb-2" 
@@ -67,7 +89,9 @@ function App() {
               onChange={(text) => {setTask(text.target.value)}}
               value={task}
             />
-            <button className="btn btn-dark btn-block">Add</button>
+            <button className={editMode ? "btn btn-warning btn-block" : "btn btn-dark btn-block"}>
+              {editMode ? "Update" : "Add"}
+            </button>
           </form>
         </div>
       </div>
