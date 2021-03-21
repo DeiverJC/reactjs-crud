@@ -2,5 +2,5 @@
 
 Learning ReactJS 2021
 
-## Screenshop
+## Screenshots
 ![Task list](./public/images/sc-tasks.png)
