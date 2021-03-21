@@ -1,7 +1,8 @@
 function App() {
   return (
-    <div>
-      <h1>Hello world from react js</h1>
+    <div className="container mt-5">
+      <h1>Tasks</h1>
+      <hr/>
     </div>
   );
 }
