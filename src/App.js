@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { isEmpty } from 'lodash'
-import shortid from 'shortid'
-import { getCollection } from './actions'
+import { addDocument, getCollection } from './actions'
 
 function App() {
   const [task, setTask] = useState("")
@@ -9,11 +8,15 @@ function App() {
   const [editMode, setEditMode] = useState(false)
   const [id, setId] = useState("")
   const [error, setError] = useState(null)  
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     (async () => {
       const result = await getCollection("tasks")
-      setTasks(result.data)
+      if (result.statusResponse) {
+        setTasks(result.data)
+      }
+      setLoading(false)
     })()
   }, [])
 
@@ -27,13 +30,18 @@ function App() {
     return isValid
   }
 
-  const addTask = (e) => {
+  const addTask = async (e) => {
     e.preventDefault()
     if(!validForm()) {
       return
     }
+    const result = await addDocument("tasks", { name: task })
+    if (!result.statusResponse) {
+      setError(result.error)
+      return
+    }
     const newTask = {
-      id: shortid.generate(),
+      id: result.data.id,
       name: task
     }
     setTasks([...tasks, newTask])
@@ -66,32 +74,40 @@ function App() {
       <div className="row">
         <div className="col-8">
           <h4 className="text-center">Tasks list</h4>
-          {isEmpty(tasks) ? (
-            <li className="list-group-item">There is not tasks to show</li>
+          {loading ? (
+            <li className="list-group-item text-center">
+              <div className="spinner-border spinner-border-sm" role="status">
+                <span className="sr-only">Loading...</span>
+              </div> Loading...
+            </li>
           ) : (
-            <ul className="list-group">
-            {
-              tasks.map(task => (
-                <li className="list-group-item" key={task.id}>
-                  <span className="lead">{task.name}</span>
-                  <div className="float-right">
-                    <button 
-                      className="btn btn-warning btn-sm mr-2"
-                      onClick={() => { editTask(task) }}
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      className="btn btn-danger btn-sm"
-                      onClick={() => { deleteTask(task.id) }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </li>
-              ))
-            }
-            </ul>
+            isEmpty(tasks) ? (
+              <li className="list-group-item">There is not tasks to show</li>
+            ) : (
+              <ul className="list-group">
+              {
+                tasks.map(task => (
+                  <li className="list-group-item" key={task.id}>
+                    <span className="lead">{task.name}</span>
+                    <div className="float-right">
+                      <button 
+                        className="btn btn-warning btn-sm mr-2"
+                        onClick={() => { editTask(task) }}
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        className="btn btn-danger btn-sm"
+                        onClick={() => { deleteTask(task.id) }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </li>
+                ))
+              }
+              </ul>
+            )
           )}
         </div>
         <div className="col-4">
