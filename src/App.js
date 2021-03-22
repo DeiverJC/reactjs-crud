@@ -7,10 +7,21 @@ function App() {
   const [tasks, setTasks] = useState([])
   const [editMode, setEditMode] = useState(false)
   const [id, setId] = useState("")
+  const [error, setError] = useState(null)  
+
+  const validForm = () => {
+    let isValid = true
+    setError(null)
+    if(isEmpty(task)) {
+      setError("Type a task to continue!")
+      isValid = false
+    }
+    return isValid
+  }
 
   const addTask = (e) => {
     e.preventDefault()
-    if(isEmpty(task)) {
+    if(!validForm()) {
       return
     }
     const newTask = {
@@ -21,9 +32,7 @@ function App() {
     setTask("")
   }
 
-  const deleteTask = id => {
-    setTasks(tasks.filter(task => task.id !== id ))
-  }
+  const deleteTask = id => setTasks(tasks.filter(task => task.id !== id ))
 
   const editTask = myTask => {
     setEditMode(true)
@@ -33,7 +42,7 @@ function App() {
 
   const updateTask = (e) => {
     e.preventDefault()
-    if(isEmpty(task)) {
+    if(!validForm()) {
       return
     }
     setTasks(tasks.map(item => item.id === id ? {id, name: task} : item))
@@ -50,7 +59,7 @@ function App() {
         <div className="col-8">
           <h4 className="text-center">Tasks list</h4>
           {isEmpty(tasks) ? (
-            <h5 className="text-center mt-5">No hay tareas para mostrar</h5>
+            <li className="list-group-item">There is not tasks to show</li>
           ) : (
             <ul className="list-group">
             {
@@ -82,6 +91,7 @@ function App() {
             {editMode ? "Edit task" : "Create task"}
           </h4>
           <form onSubmit={editMode ? updateTask : addTask}>
+            {error && <div className="alert alert-danger" role="alert">{error}</div>}
             <input 
               type="text" 
               className="form-control mb-2" 
