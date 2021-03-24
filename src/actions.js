@@ -1,6 +1,6 @@
 import { firebaseApp } from './firebase'
 import * as firebase from 'firebase'
-import 'firebase/firestore';
+import 'firebase/firestore'
 
 const db = firebase.firestore(firebaseApp)
 
@@ -26,4 +26,38 @@ export const addDocument = async (collection, data) => {
         result.error = error
     }
     return result
+}
+
+export const getDocument = async (collection, id) => {
+    const result = { statusResponse: false, data: null, error: null }
+    try {
+        const response = await db.collection(collection).doc(id).get()
+        result.data = { id: response.id, ...response.data() }
+        result.statusResponse = true
+    } catch (error) {
+        result.error = console.error()
+    }
+    return result
+}
+
+export const updateDocument = async (collection, id, data) => {
+    const response = { statusResponse: false, error: null }
+    try {
+        await db.collection(collection).doc(id).update(data)
+        response.statusResponse = true
+    } catch (error) {
+        response.error = error
+    }
+    return response
+}
+
+export const deleteDocument = async (collection, id) => {
+    const response = { statusResponse: false, error: null }
+    try {
+        await db.collection(collection).doc(id).delete()
+        response.statusResponse = true
+    } catch (error) {
+        response.error = console.error();
+    }
+    return response
 }
